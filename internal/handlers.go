@@ -1,9 +1,15 @@
 package internal
 
 import (
-	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func Hello() {
-	fmt.Println("Hello from handlers!")
+type Handler struct{}
+
+func (h *Handler) Healthcheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "API is healthy",
+	})
 }
