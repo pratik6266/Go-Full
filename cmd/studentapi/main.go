@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	handler "github.com/pratik6266/go-full/internal"
 )
