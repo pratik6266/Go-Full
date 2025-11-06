@@ -39,6 +39,17 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
+    - name: Check formatting (gofmt)
+      run: |
+        # List files that would change if formatted
+        UNFORMATTED=$(gofmt -l .)
+        if [ -n "$UNFORMATTED" ]; then
+          echo "The following files are not gofmt-formatted:" >&2
+          echo "$UNFORMATTED" >&2
+          echo "Please run: gofmt -s -w ." >&2
+          exit 1
+        fi
+
     - name: Vet
       run: go vet ./...
 
