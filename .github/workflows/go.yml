@@ -39,11 +39,14 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Format check
+    - name: Check formatting (gofmt)
       run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "Code is not formatted. Run 'gofmt -s -w .'"
-          gofmt -s -l .
+        # List files that would change if formatted
+        UNFORMATTED=$(gofmt -l .)
+        if [ -n "$UNFORMATTED" ]; then
+          echo "The following files are not gofmt-formatted:" >&2
+          echo "$UNFORMATTED" >&2
+          echo "Please run: gofmt -s -w ." >&2
           exit 1
         fi
 
@@ -81,14 +84,18 @@ jobs:
 
     - name: Build for multiple platforms
       run: |
-        # Build for Linux
-        GOOS=linux GOARCH=amd64 go build -o bin/app-linux-amd64 ./...
-        
-        # Build for Windows
-        GOOS=windows GOARCH=amd64 go build -o bin/app-windows-amd64.exe ./...
-        
-        # Build for macOS
-        GOOS=darwin GOARCH=amd64 go build -o bin/app-darwin-amd64 ./...
+        # Ensure output directory exists
+        mkdir -p bin
+
+        # Build only the command package (avoids multi-package -o error)
+        # Linux
+        GOOS=linux GOARCH=amd64 go build -o bin/studentapi-linux-amd64 ./cmd/studentapi
+
+        # Windows
+        GOOS=windows GOARCH=amd64 go build -o bin/studentapi-windows-amd64.exe ./cmd/studentapi
+
+        # macOS
+        GOOS=darwin GOARCH=amd64 go build -o bin/studentapi-darwin-amd64 ./cmd/studentapi
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
