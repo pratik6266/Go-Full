@@ -1,0 +1,35 @@
+definitions:
+  internal.HealthResponse:
+    properties:
+      message:
+        example: API is healthy
+        type: string
+    type: object
+info:
+  contact:
+    email: pratikraj220011@gmail.com
+    name: Pratik Raj
+  description: This is a sample server for managing student records.
+  title: Student API Documentation
+  version: "1.0"
+paths:
+  /health:
+    get:
+      description: Returns the API health status.
+      operationId: healthcheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal.HealthResponse'
+      summary: Health check
+      tags:
+      - Health
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

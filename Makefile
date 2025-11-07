@@ -2,7 +2,7 @@ ENV ?= dev
 BIN_DIR := bin
 APP := studentapi
 
-.PHONY: run build run-windows test fmt vet clean help
+.PHONY: run build run-windows test fmt vet clean help swag
 
 # Run the app directly (cross-platform)
 run:
@@ -28,6 +28,9 @@ vet:
 
 clean:
 	rm -rf $(BIN_DIR)
+
+swag:
+	swag init -g cmd/studentapi/main.go
 
 help:
 	@echo "make run          # Run the API with 'go run'"
