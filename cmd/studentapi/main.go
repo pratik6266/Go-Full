@@ -6,9 +6,9 @@ import (
 	handler "github.com/pratik6266/go-full/internal"
 
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
-	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	docs "github.com/pratik6266/go-full/docs"  // generated swagger docs
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 // @title           Student API Documentation
@@ -28,12 +28,11 @@ import (
 func main() {
 	fmt.Println("Server is running on port 8080")
 
-	
 	// Initialize Gin router
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	
+
 	// Swagger UI endpoint
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	docs.SwaggerInfo.BasePath = "/api/v1"
@@ -43,6 +42,7 @@ func main() {
 
 	rw := r.Group("/api/v1")
 	{
+		//healthcheck endpoint
 		rw.GET("/health", h.Healthcheck)
 	}
 
