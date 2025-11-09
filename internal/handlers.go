@@ -119,8 +119,6 @@ func (h *Handler) GetStudentByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to fetch student"})
 		return
 	}
-
-	StudentCreationsTotal.WithLabelValues().Inc()
 	c.JSON(http.StatusOK, s)
 }
 
