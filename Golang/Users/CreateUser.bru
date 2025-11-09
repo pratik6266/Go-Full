@@ -1,0 +1,23 @@
+meta {
+  name: CreateUser
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/{{path}}/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "johsddn@example.com",
+    "name": "John Doe"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

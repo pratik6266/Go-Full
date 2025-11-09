@@ -1,0 +1,24 @@
+meta {
+  name: CreateStudent
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/{{path}}/students
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "age": 20,
+    "email": "johsdfn@example.com",
+    "name": "John Doe"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

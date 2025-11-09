@@ -10,12 +10,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DB *sql.DB
+type Db struct {
+	db *sql.DB
+}
 
-func InitDB() {
-	err := godotenv.Load("config/dev.env")
-	if err != nil {
-		log.Fatal("Error loading config/dev.env file")
+func InitDB() (*Db, error) {
+	// Load local env file if present; otherwise rely on environment variables
+	if err := godotenv.Load("config/dev.env"); err != nil {
+		log.Println("config/dev.env not found; falling back to environment variables")
 	}
 
 	host := os.Getenv("DB_HOST")
@@ -24,6 +26,10 @@ func InitDB() {
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 
+	if port == "" {
+		port = "5432"
+	}
+
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname,
@@ -31,14 +37,14 @@ func InitDB() {
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("Error connecting to database:", err)
+		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatal("Cannot reach database:", err)
+		return nil, fmt.Errorf("cannot reach database: %w", err)
 	}
 
-	DB = db
-
 	fmt.Println("✅ Connected to PostgreSQL successfully!")
+
+	return &Db{db: db}, nil
 }

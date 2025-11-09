@@ -1,11 +1,11 @@
 meta {
-  name: GetStudents
+  name: DeleteStudentById
   type: http
-  seq: 1
+  seq: 5
 }
 
-get {
-  url: {{url}}/{{path}}/students
+delete {
+  url: {{url}}/{{path}}/students/2
   body: none
   auth: inherit
 }
