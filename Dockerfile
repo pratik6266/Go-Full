@@ -25,18 +25,26 @@ FROM alpine:3.20
 
 WORKDIR /app
 
-# Install CA certificates (for HTTPS requests, etc.) and add non-root user
+# Install CA certificates (for HTTPS requests, etc.) and add non-root user with home
 RUN apk add --no-cache ca-certificates \
-	&& adduser -D -H -u 10001 appuser
+	&& adduser -D -u 10001 -h /home/appuser appuser \
+	&& mkdir -p /home/appuser \
+	&& chown -R appuser:appuser /home/appuser
 
 # Copy the compiled binary from builder stage
 COPY --from=builder /app/studentapi /app/studentapi
 
+# Optionally copy config (non-fatal if not used in container)
+# Uncomment if you want to ship local config files inside the image
+# COPY --from=builder /app/config /app/config
+
 # Expose API port
 EXPOSE 8080
 
-# Run in release mode and drop privileges
-ENV GIN_MODE=release
+# Run in release mode; set HOME to avoid cache path issues
+ENV GIN_MODE=release \
+	HOME=/home/appuser \
+	XDG_CACHE_HOME=/home/appuser/.cache
 USER appuser
 
 ENTRYPOINT ["/app/studentapi"]

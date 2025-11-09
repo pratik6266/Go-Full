@@ -2,7 +2,7 @@ ENV ?= dev
 BIN_DIR := bin
 APP := studentapi
 
-.PHONY: run build run-windows test fmt vet clean help swag vendor tidy precommit
+.PHONY: run build run-windows test fmt vet clean help swag vendor tidy precommit db monitor db-server
 
 # Run the app directly (cross-platform)
 run:
@@ -30,7 +30,7 @@ clean:
 	rm -rf $(BIN_DIR)
 
 swag:
-	swag init -g cmd/studentapi/main.go
+	swag init -g cmd/studentapi/main.go -d . -o ./docs --parseDependency --parseInternal
 
 vendor:
 	go mod vendor
@@ -39,6 +39,15 @@ tidy:
 	go mod tidy
 
 precommit: tidy vendor vet fmt test
+
+db-server:
+	docker compose -f db-server.yaml up --build
+
+monitor:
+	docker compose up --build
+
+db:
+	docker compose -f db.yaml up --build
 
 help:
 	@echo "make run          # Run the API with 'go run'"
