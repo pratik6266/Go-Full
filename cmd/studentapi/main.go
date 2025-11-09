@@ -2,14 +2,46 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	docs "github.com/pratik6266/go-full/docs" // generated swagger docs
 	app "github.com/pratik6266/go-full/internal"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/grafana/loki-client-go/loki"
+	"github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
+
+// LokiHook implements logrus.Hook to forward logs to Loki.
+type LokiHook struct {
+	client *loki.Client
+	labels model.LabelSet
+}
+
+func NewLokiHook(client *loki.Client) *LokiHook {
+	return &LokiHook{
+		client: client,
+		labels: model.LabelSet{model.LabelName("job"): model.LabelValue("student-api")},
+	}
+}
+
+func (h *LokiHook) Levels() []logrus.Level {
+	return logrus.AllLevels
+}
+
+func (h *LokiHook) Fire(entry *logrus.Entry) error {
+	// Format log line
+	line, err := entry.String()
+	if err != nil {
+		return err
+	}
+	// Send to Loki; ignore error for now to avoid loop
+	_ = h.client.Handle(h.labels, time.Now(), line)
+	return nil
+}
 
 // @title           Student API Documentation
 // @version         1.0
@@ -40,12 +72,25 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(app.PrometheusMiddleware())
 
+	// Loki Setup
+	lokiCfg, err := loki.NewDefaultConfig("http://localhost:3100/loki/api/v1/push")
+	if err != nil {
+		panic(err)
+	}
+	client, err := loki.New(lokiCfg)
+	if err != nil {
+		panic(err)
+	}
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.TextFormatter{})
+	logger.AddHook(NewLokiHook(client))
+
 	// Swagger UI endpoint
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	// API routes
-	h := app.NewHandler(db)
+	h := app.NewHandler(db, logger)
 	rw := r.Group("/api/v1")
 	{
 		//healthcheck endpoint
@@ -61,8 +106,8 @@ func main() {
 		// user endpoints
 		rw.GET("/users", h.GetUsers)
 		rw.GET("/users/by-id", h.GetUserById)
-		// Create user
 		rw.POST("/users", h.CreateUser)
+		rw.DELETE("/users/:id", h.DeleteUserById)
 
 		// auth endpoints
 	}
