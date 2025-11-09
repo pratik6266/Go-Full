@@ -1,6 +1,6 @@
 package internal
 
-import(
+import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,13 +9,12 @@ import(
 	"github.com/stretchr/testify/assert"
 )
 
-
 func HealthcheckTest(t *testing.T) {
 	router := gin.Default()
 
 	req, err := http.NewRequest("GET", "/health", nil)
 	if err != nil {
-		panic(err);
+		panic(err)
 	}
 
 	w := httptest.NewRecorder()
