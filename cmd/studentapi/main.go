@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 
-	app "github.com/pratik6266/go-full/internal"
-
 	"github.com/gin-gonic/gin"
 	docs "github.com/pratik6266/go-full/docs" // generated swagger docs
+	app "github.com/pratik6266/go-full/internal"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -29,8 +28,11 @@ import (
 func main() {
 	fmt.Println("Server is running on port 8080")
 
-	// Initialize DB once
-	app.InitDB()
+	// Initialize database
+	db, err := app.InitDB()
+	if err != nil {
+		panic("Failed to connect to database")
+	}
 
 	// Initialize Gin router
 	r := gin.New()
@@ -42,16 +44,27 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
+	// API routes
+	h := app.NewHandler(db)
 	rw := r.Group("/api/v1")
 	{
 		//healthcheck endpoint
-		h := &app.Handler{}
 		rw.GET("/health", h.Healthcheck)
+
+		// student endpoints
 		rw.GET("/students", h.GetStudents)
 		rw.POST("/students", h.CreateStudent)
 		rw.GET("/students/:id", h.GetStudentByID)
 		rw.PUT("/students/:id", h.UpdateStudent)
 		rw.DELETE("/students/:id", h.DeleteStudent)
+
+		// user endpoints
+		rw.GET("/users", h.GetUsers)
+		rw.GET("/users/by-id", h.GetUserById)
+		// Create user
+		rw.POST("/users", h.CreateUser)
+
+		// auth endpoints
 	}
 
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))

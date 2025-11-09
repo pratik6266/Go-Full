@@ -5,11 +5,12 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/api/v1/health
+  url: {{url}}/{{path}}/health
   body: none
   auth: inherit
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
