@@ -284,6 +284,33 @@ paths:
       summary: Create a user
       tags:
       - Users
+  /users/{id}:
+    delete:
+      description: Deletes a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal.ErrorResponse'
+      summary: Delete a user
+      tags:
+      - Users
   /users/by-id:
     get:
       description: Retrieve a single user by ID using query parameter ?id=
