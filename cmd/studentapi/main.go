@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/grafana/loki-client-go/loki"
 	docs "github.com/pratik6266/go-full/docs" // generated swagger docs
 	app "github.com/pratik6266/go-full/internal"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/grafana/loki-client-go/loki"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files

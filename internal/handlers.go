@@ -10,13 +10,13 @@ import (
 )
 
 type Handler struct {
-	db *sql.DB
+	db     *sql.DB
 	logger *logrus.Logger
 }
 
 func NewHandler(d *Db, logger *logrus.Logger) *Handler {
 	return &Handler{
-		db: d.db,
+		db:     d.db,
 		logger: logger,
 	}
 }
